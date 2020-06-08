@@ -1,5 +1,7 @@
 # Deno FetchEvent
 
+[![deno doc](https://doc.deno.land/badge.svg)](https://doc.deno.land/https/raw.githubusercontent.com/lucacasonato/deno-fetchevent/master/mod.ts)
+
 This project is a prototype of what a FetchEvent based http server would feel like. For more background, take a look at https://github.com/denoland/deno/issues/4898.
 
 > **DISCLAIMER**: This is not tested at all. Please do not use this for anything important. This is just a prototype and will not be developed further.
