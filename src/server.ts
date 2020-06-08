@@ -1,4 +1,9 @@
-import { StdServer, ServerRequest, HTTPOptions } from "../deps.ts";
+import {
+  StdServer,
+  ServerRequest,
+  HTTPOptions,
+  HTTPSOptions,
+} from "../deps.ts";
 import { ReadableStreamIOReader } from "./toReader.ts";
 
 export interface FetchEvent extends Event {
@@ -62,6 +67,17 @@ export class Server implements AsyncIterable<FetchEvent> {
   }
 }
 
+/**
+ * Start an HTTP server with given options
+ *
+ *     const options = { port: 443 };
+ *     for await (const event of serve(options)) {
+ *       event.respondWith(Response.redirect("https://deno.land", 303));
+ *     }
+ *
+ * @param options Server configuration
+ * @return Async iterable server instance for incoming events
+ */
 export function serve(addr: string | HTTPOptions): Server {
   if (typeof addr === "string") {
     const [hostname, port] = addr.split(":");
@@ -69,4 +85,74 @@ export function serve(addr: string | HTTPOptions): Server {
   }
   const listener = Deno.listen(addr);
   return new Server(listener);
+}
+
+/**
+ * Start an HTTP server with given options and event handler
+ *
+ *     const options = { port: 8000 };
+ *     listenAndServe(options, (event) => {
+ *       event.respondWith(Response.redirect("https://deno.land", 303));
+ *     });
+ *
+ * @param options Server configuration
+ * @param handler Event handler
+ */
+export async function listenAndServe(
+  addr: string | HTTPOptions,
+  handler: (event: FetchEvent) => void
+): Promise<void> {
+  const server = serve(addr);
+
+  for await (const event of server) {
+    handler(event);
+  }
+}
+
+/**
+ * Start an HTTPS server with given options
+ *
+ *     const options = {
+ *       hostname: "localhost",
+ *       port: 443,
+ *       certFile: "./path/to/localhost.crt",
+ *       keyFile: "./path/to/localhost.key",
+ *     };
+ *     for await (const event of serveTLS(options)) {
+ *       event.respondWith(Response.redirect("https://deno.land", 303));
+ *     }
+ *
+ * @param options Server configuration
+ * @return Async iterable server instance for incoming events
+ */
+export function serveTLS(options: HTTPSOptions): Server {
+  const listener = Deno.listenTls({ ...options, transport: "tcp" });
+  return new Server(listener);
+}
+
+/**
+ * Start an HTTPS server with given options and event handler
+ *
+ *     const options = {
+ *       hostname: "localhost",
+ *       port: 443,
+ *       certFile: "./path/to/localhost.crt",
+ *       keyFile: "./path/to/localhost.key",
+ *     };
+ *     listenAndServeTLS(options, (event) => {
+ *       event.respondWith(Response.redirect("https://deno.land", 303));
+ *     });
+ *
+ * @param options Server configuration
+ * @param handler Event handler
+ */
+export async function listenAndServeTLS(
+  options: HTTPSOptions,
+  handler: (event: FetchEvent) => void
+): Promise<void> {
+  const server = serveTLS(options);
+
+  for await (const event of server) {
+    handler(event);
+  }
 }
