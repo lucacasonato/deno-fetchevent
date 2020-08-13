@@ -3,4 +3,4 @@ export {
   ServerRequest,
   HTTPOptions,
   HTTPSOptions,
-} from "https://deno.land/std@0.55.0/http/mod.ts";
+} from "https://deno.land/std@0.64.0/http/mod.ts";
