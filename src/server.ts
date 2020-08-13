@@ -45,6 +45,9 @@ class FetchEventImpl extends Event {
 
 Object.defineProperty(FetchEventImpl, "name", { value: "FetchEvent" });
 
+//@ts-ignore
+window.FetchEvent = FetchEventImpl;
+
 export class Server implements AsyncIterable<FetchEvent> {
   private server: StdServer;
 
