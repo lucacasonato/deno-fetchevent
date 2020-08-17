@@ -17,18 +17,23 @@ class FetchEventImpl extends Event {
   constructor(private stdReq: ServerRequest) {
     super("fetch");
 
-    this.request = new Request(stdReq.url, {
-      body: new ReadableStream({
-        start: async (controller) => {
-          for await (const chunk of Deno.iter(stdReq.body)) {
-            controller.enqueue(chunk);
-          }
-          controller.close();
-        },
-      }),
-      headers: stdReq.headers,
-      method: stdReq.method,
-    });
+    const host = stdReq.headers.get("host") ?? "example.com";
+
+    this.request = new Request(
+      new URL(stdReq.url, `http://${host}`).toString(),
+      {
+        body: new ReadableStream({
+          start: async (controller) => {
+            for await (const chunk of Deno.iter(stdReq.body)) {
+              controller.enqueue(chunk);
+            }
+            controller.close();
+          },
+        }),
+        headers: stdReq.headers,
+        method: stdReq.method,
+      },
+    );
   }
 
   async respondWith(response: Promise<Response> | Response): Promise<Response> {
@@ -36,8 +41,9 @@ class FetchEventImpl extends Event {
     await this.stdReq.respond({
       headers: resp.headers,
       status: resp.status,
-      body:
-        resp.body != null ? new ReadableStreamIOReader(resp.body) : undefined,
+      body: resp.body != null
+        ? new ReadableStreamIOReader(resp.body)
+        : undefined,
     });
     return resp;
   }
@@ -100,7 +106,7 @@ export function serve(addr: string | HTTPOptions): Server {
  */
 export async function listenAndServe(
   addr: string | HTTPOptions,
-  handler: (event: FetchEvent) => void
+  handler: (event: FetchEvent) => void,
 ): Promise<void> {
   const server = serve(addr);
 
@@ -148,7 +154,7 @@ export function serveTLS(options: HTTPSOptions): Server {
  */
 export async function listenAndServeTLS(
   options: HTTPSOptions,
-  handler: (event: FetchEvent) => void
+  handler: (event: FetchEvent) => void,
 ): Promise<void> {
   const server = serveTLS(options);
 
