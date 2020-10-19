@@ -1,10 +1,10 @@
 import {
+  StdServer,
+  ServerRequest,
   HTTPOptions,
   HTTPSOptions,
-  ServerRequest,
-  StdServer,
 } from "../deps.ts";
-import { fromStreamReader } from "https://deno.land/std@0.74.0/io/streams.ts";
+import { ReadableStreamIOReader } from "./toReader.ts";
 
 export interface FetchEvent extends Event {
   request: Request;
@@ -41,7 +41,9 @@ class FetchEventImpl extends Event {
     await this.stdReq.respond({
       headers: resp.headers,
       status: resp.status,
-      body: resp.body ? fromStreamReader(resp.body.getReader()) : undefined,
+      body: resp.body != null
+        ? new ReadableStreamIOReader(resp.body)
+        : undefined,
     });
     return resp;
   }
