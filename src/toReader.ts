@@ -1,8 +1,9 @@
 export class ReadableStreamIOReader implements Deno.Reader {
-  #reader: ReadableStreamDefaultReader;
+  #reader: ReadableStreamDefaultReader<Uint8Array>;
   #buffer: Uint8Array | null;
   #encoder: TextEncoder;
-  constructor(dst: ReadableStream) {
+
+  constructor(dst: ReadableStream<Uint8Array>) {
     this.#reader = dst.getReader();
     this.#buffer = null;
     this.#encoder = new TextEncoder();
@@ -18,7 +19,8 @@ export class ReadableStreamIOReader implements Deno.Reader {
         return null; // EOF
       }
 
-      value = res.value;
+      // TODO(lucacasonato): remove. workaround for https://github.com/denoland/deno/pull/8030
+      value = res.value ? new Uint8Array(res.value) : res.value;
 
       if (!value) {
         return 0;

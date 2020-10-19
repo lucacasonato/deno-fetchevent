@@ -7,7 +7,12 @@ for await (const event of serve(":8080")) {
   console.log("---");
   console.log(request.url);
   console.log(request.method);
-  if (request.body) console.log(await request.json());
+  if (request.body) console.log(await request.text());
 
-  event.respondWith(Response.redirect("https://deno.land", 303));
+  event.respondWith(
+    new Response("404 not found", {
+      headers: { "content-type": "text/plain" },
+      status: 404,
+    }),
+  );
 }

@@ -1,8 +1,8 @@
 import {
-  StdServer,
-  ServerRequest,
   HTTPOptions,
   HTTPSOptions,
+  ServerRequest,
+  StdServer,
 } from "../deps.ts";
 import { ReadableStreamIOReader } from "./toReader.ts";
 
