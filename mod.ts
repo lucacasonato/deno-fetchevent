@@ -1,2 +1,9 @@
-export { serve, serveTLS, listenAndServe, listenAndServeTLS, Server, FetchEvent } from "./src/server.ts";
-export { HTTPOptions, HTTPSOptions } from "./deps.ts";
+export {
+  listenAndServe,
+  listenAndServeTLS,
+  serve,
+  Server,
+  serveTLS,
+} from "./src/server.ts";
+export type { FetchEvent } from "./src/server.ts";
+export type { HTTPOptions, HTTPSOptions } from "./deps.ts";
