@@ -18,21 +18,21 @@ class FetchEventImpl extends Event {
     super("fetch");
 
     const host = stdReq.headers.get("host") ?? "example.com";
+    const method = stdReq.method;
+    const body = (method === "GET" || method === "HEAD")
+      ? null
+      : new ReadableStream({
+        start: async (controller) => {
+          for await (const chunk of Deno.iter(stdReq.body)) {
+            controller.enqueue(new Uint8Array(chunk));
+          }
+          controller.close();
+        },
+      });
 
     this.request = new Request(
       new URL(stdReq.url, `http://${host}`).toString(),
-      {
-        body: new ReadableStream({
-          start: async (controller) => {
-            for await (const chunk of Deno.iter(stdReq.body)) {
-              controller.enqueue(chunk);
-            }
-            controller.close();
-          },
-        }),
-        headers: stdReq.headers,
-        method: stdReq.method,
-      },
+      { body, headers: stdReq.headers, method },
     );
   }
 
