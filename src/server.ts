@@ -24,7 +24,7 @@ class FetchEventImpl extends Event {
       : new ReadableStream({
         start: async (controller) => {
           for await (const chunk of Deno.iter(stdReq.body)) {
-            controller.enqueue(chunk);
+            controller.enqueue(new Uint8Array(chunk));
           }
           controller.close();
         },
